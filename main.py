@@ -42,6 +42,8 @@ def query():
     client = pymongo.MongoClient()
     db = client["zhihu"]
     items = db.answers.aggregate([
+        {"$match": {"target.type": "answer"}},
+        {"$match": {"target.voteup_count": {"$gte": 1000}}},
         {"$addFields": {"answer_len": {"$strLenCP": "$target.content"}}},
         {"$match": {"answer_len": {"$lte": 50}}},
     ])
@@ -64,14 +66,17 @@ def query():
         answer_ids.append(answer_id)
 
 if __name__ == "__main__":
+#def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("--save", help="save data", action="store_true", dest="save")
     parser.add_argument("--query", help="query data", action="store_true", dest="query")
     args = parser.parse_args()
 
     if args.save:
-        topic_ids = [19554298, 19552330, 19565652, 19580349, 19939299, 19555547, 19594551, 19552832, 19577377, 19552826, 19615452]
+        topic_ids = [19552330, 19554298, 19565652, 19580349, 19939299, 19555547, 19594551, 19552832, 19577377, 19552826, 19615452]
         for topic_id in topic_ids:
             get_answers(topic_id)
     elif args.query:
         query()
+
+#run()
